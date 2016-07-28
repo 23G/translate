@@ -30,7 +30,9 @@ trait TranslateTrait
      */
     public function getAttribute($key)
     {
-        return 'trans: '.parent::getAttribute($key);
+        if (in_array($key, $this->translate)) {
+            return 'trans: '.parent::getAttribute($key);
+        }
         
         return parent::getAttribute($key);
     }
@@ -57,7 +59,7 @@ trait TranslateTrait
      */
     public function isKeyTranslatable(string $key)
     {
-        return in_array($key, $this->translateable);
+        return in_array($key, $this->translate);
     }
 
     /**
@@ -133,12 +135,12 @@ trait TranslateTrait
             $attributes = $this->attributes;
         }
 
-        $translateable = array_flip($this->translateable);
+        $translate = array_flip($this->translate);
 
         if ($translations) {
-            $attributes = array_intersect_key($attributes, $translateable);
+            $attributes = array_intersect_key($attributes, $translate);
         } else {
-            $attributes = array_diff_key($attributes, $translateable);
+            $attributes = array_diff_key($attributes, $translate);
         }
 
         return $attributes;

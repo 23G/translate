@@ -30,13 +30,13 @@ class Translate
      */
     public function init()
     {
-        $sessionExists = $this->session->has('language_code');
+        $sessionExists = $this->session->has('translate_language_code');
 
-        if ($this->session->has('language_code')) {
+        if ($this->session->has('translate_language_code')) {
             $this->sessionIsSet = true;
 
             $currentLocale = App::getLocale();
-            $languageCode = $sessionExists ? $this->session->get('language_code') : $currentLocale;
+            $languageCode = $sessionExists ? $this->session->get('translate_language_code') : $currentLocale;
 
             if ($currentLocale != $languageCode) {
                 App::setLocale($languageCode);
@@ -110,17 +110,17 @@ class Translate
     public function getLanguageId()
     {
         $this->setSession(); // Do it at the point we need it.
-        return $this->session->has('language_id') ? $this->session->get('language_id') : $this->getLanguage()->id;
+        return $this->session->has('translate_language_id') ? $this->session->get('translate_language_id') : $this->getLanguage()->id;
     }
 
     /**
      * Get the id for the fallback language IF set and exists in the database.
      * @return int|bool
      */
-    public function getFallbackId()
+    public function getFallbackLanguageId()
     {
         $this->setSession(); // Do it at the point we need it.
-        return $this->session->has('fallback_language_id') ? $this->session->get('fallback_language_id') : false;
+        return $this->session->has('translate_fallback_language_id') ? $this->session->get('translate_fallback_language_id') : false;
     }
 
     /**
@@ -142,13 +142,13 @@ class Translate
                 App::setLocale($language->code);
             }
 
-            $this->session->set('language_id', $language->id);
-            $this->session->set('language_code', $language->code);
+            $this->session->set('translate_language_id', $language->id);
+            $this->session->set('translate_language_code', $language->code);
         }
 
         if (config('app.fallback_locale') &&
             $fallbackLanguage = $this->getLanguageByCode(config('app.fallback_locale'))) {
-            $this->session->set('fallback_language_id', $fallbackLanguage->id);
+            $this->session->set('translate_fallback_language_id', $fallbackLanguage->id);
         }
     }
 }
