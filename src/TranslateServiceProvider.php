@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace DylanLamers\Translate;
 
@@ -7,7 +7,8 @@ use Illuminate\Routing\Router;
 use DylanLamers\Translate\Models\Language;
 use DylanLamers\Translate\Translate;
 
-class TranslateServiceProvider extends ServiceProvider {
+class TranslateServiceProvider extends ServiceProvider
+{
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -32,7 +33,8 @@ class TranslateServiceProvider extends ServiceProvider {
         $router->pushMiddlewareToGroup('web', \DylanLamers\Translate\Middleware\TranslateInitiator::class);
     }
 
-    public function register(){
+    public function register()
+    {
         $this->commands([
             'DylanLamers\Translate\Console\Commands\Install'
         ]);
@@ -41,8 +43,8 @@ class TranslateServiceProvider extends ServiceProvider {
             We need the constructor to be fired therefor we use app->instance.
         */
         
-        $this->app->singleton('translate', function($app){
-            return new Translate($app['session']); 
+        $this->app->singleton('translate', function ($app) {
+            return new Translate($app['session']);
         });
 
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
@@ -57,10 +59,8 @@ class TranslateServiceProvider extends ServiceProvider {
      */
     public function setupRoutes(Router $router)
     {
-        $router->group(['namespace' => 'DylanLamers\Translate\Http\Controllers'], function($router)
-        {
+        $router->group(['namespace' => 'DylanLamers\Translate\Http\Controllers'], function ($router) {
             require __DIR__.'/Http/routes.php';
         });
     }
- 
 }

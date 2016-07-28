@@ -1,15 +1,16 @@
-<?php 
+<?php
 
 namespace DylanLamers\Translate\Middleware;
 
 use Closure;
 use DylanLamers\Translate\Facades\Translate;
 
-class TranslateInitiator {
+class TranslateInitiator
+{
 
-    public function handle($request, Closure $next){
+    public function handle($request, Closure $next)
+    {
         Translate::init();
         return $next($request);
     }
-
 }

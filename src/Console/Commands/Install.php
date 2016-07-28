@@ -24,10 +24,11 @@ class Install extends Command
 
     /**
      * Description
-     * @param Container $app 
+     * @param Container $app
      * @return void
      */
-    public function __construct(Container $app){
+    public function __construct(Container $app)
+    {
         $this->app = $app;
 
         parent::__construct();
@@ -42,12 +43,12 @@ class Install extends Command
     {
         $text = 'Thank you for downloading DylanLamers/Translate. You are about to finish the instalation by running this installer. Do you want to proceed?';
 
-        if(! $this->confirm(PHP_EOL.$text.PHP_EOL)){
+        if (! $this->confirm(PHP_EOL.$text.PHP_EOL)) {
             return true;
         }
 
         $migrations = $this->app->make('migration.repository');
-        if(! $migrations->repositoryExists()){
+        if (! $migrations->repositoryExists()) {
             $migrations->createRepository();
         }
         
@@ -61,14 +62,14 @@ class Install extends Command
         $languages = [];
         $defaultIsSet = false;
 
-        while($this->confirm($whileQuestion)){
+        while ($this->confirm($whileQuestion)) {
             $whileQuestion = 'Do you want to add another language?';
 
             $sort = null;
             $readable = $this->ask('What is the full name of the language (eg: English)');
             $code = $this->ask('What is the code of the language (eg: en)');
             
-            if(!$defaultIsSet && $this->confirm('Is this the default language?')){
+            if (!$defaultIsSet && $this->confirm('Is this the default language?')) {
                 $sort = 999;
                 $defaultIsSet = true;
             }
@@ -76,7 +77,7 @@ class Install extends Command
             $languages[] = compact('code', 'readable', 'sort');
         }
 
-        if($languages){
+        if ($languages) {
             Language::insert($languages);
         }
     }

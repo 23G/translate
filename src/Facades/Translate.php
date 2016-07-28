@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace DylanLamers\Translate\Facades;
 
@@ -11,5 +11,8 @@ class Translate extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'translate'; }
+    protected static function getFacadeAccessor()
+    {
+        return 'translate';
+    }
 }

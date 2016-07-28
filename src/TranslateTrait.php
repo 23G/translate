@@ -1,11 +1,12 @@
-<?php 
+<?php
 
 namespace DylanLamers\Translate;
 
 use Illuminate\Database\Eloquent\Builder;
 use DylanLamers\Translate\Facades\Translate;
 
-trait TranslateTrait {
+trait TranslateTrait
+{
 
     protected $langId = 0;
     protected $langCode = '';
@@ -36,13 +37,13 @@ trait TranslateTrait {
 
     /**
      * Set a given attribute on the model by the parent function, but also checks if we need insert to the translations table.
-     * @param string $key 
-     * @param mixed $value 
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function setAttribute($key, $value)
     {
-        if($this->isKeyTranslatable($key) && !array_key_exists($key, $this->original)){
+        if ($this->isKeyTranslatable($key) && !array_key_exists($key, $this->original)) {
             $this->newTranslate = true;
         }
 
@@ -51,7 +52,7 @@ trait TranslateTrait {
 
     /**
      * Tells if the key belongs to the model or the translations table.
-     * @param string $key 
+     * @param string $key
      * @return bool
      */
     public function isKeyTranslatable(string $key)
@@ -66,11 +67,11 @@ trait TranslateTrait {
      * @return bool
      */
     public function save(array $options = [])
-    {   
+    {
         /*
             We just need to update, we have to do this before te parent sets sync the original attributes and the getDirty does not see the change anymore.
         */
-        if(!$this->newTranslate && $dirty = $this->getDirty(true)){
+        if (!$this->newTranslate && $dirty = $this->getDirty(true)) {
             $table = $this->getTable().'_lang';
             \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId(Translate::getLanguageId())->update($dirty);
         }
@@ -83,7 +84,7 @@ trait TranslateTrait {
         /*
             We can do this only after we have the parent function has set the id.
         */
-        if($this->newTranslate){
+        if ($this->newTranslate) {
             $table = $this->getTable().'_lang';
             $attributes = $this->getAttributes(true);
             $attributes[$this->getTableSingular().'_id'] = $this->attributes['id'];
@@ -122,20 +123,21 @@ trait TranslateTrait {
 
     /**
      * Returns the attributes for either the actual model or the translations table
-     * @param bool $translations 
-     * @param bool $attributes 
+     * @param bool $translations
+     * @param bool $attributes
      * @return array
      */
-    public function getAttributes($translations = false, $attributes = false){
-        if(!$attributes){
+    public function getAttributes($translations = false, $attributes = false)
+    {
+        if (!$attributes) {
             $attributes = $this->attributes;
         }
 
         $translateable = array_flip($this->translateable);
 
-        if($translations){
+        if ($translations) {
             $attributes = array_intersect_key($attributes, $translateable);
-        }else{
+        } else {
             $attributes = array_diff_key($attributes, $translateable);
         }
 
@@ -162,9 +164,8 @@ trait TranslateTrait {
      * getTable function returns the pluralized table, yet for the relation we need the singular form.
      * @return string
      */
-    public function getTableSingular(){
+    public function getTableSingular()
+    {
         return isset($this->table) ? $this->table : str_replace('\\', '', snake_case((class_basename($this))));
     }
-
-
 }

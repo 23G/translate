@@ -9,7 +9,8 @@ class Language extends Model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSort($query){
+    public function scopeSort($query)
+    {
         return $query->orderBy('sort', 'desc');
     }
 }
