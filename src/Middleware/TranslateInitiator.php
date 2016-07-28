@@ -10,7 +10,14 @@ class TranslateInitiator
 
     public function handle($request, Closure $next)
     {
-        Translate::init();
+        $possibleCode = false;
+
+        if (config('translate.use_nice_urls') && substr($request->path(), 2, 1) === '/') {
+            $possibleCode = substr($request->path(), 0, 2);
+        }
+
+        Translate::init($possibleCode);
+
         return $next($request);
     }
 }

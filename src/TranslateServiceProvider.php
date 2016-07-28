@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
 use DylanLamers\Translate\Models\Language;
 use DylanLamers\Translate\Translate;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 
 class TranslateServiceProvider extends ServiceProvider
 {
@@ -16,25 +17,31 @@ class TranslateServiceProvider extends ServiceProvider
      */
     protected $defer = false;
 
-    public function boot(Router $router)
+    public function boot(Router $router, DispatcherContract $events)
     {
         $this->publishes([
-            __DIR__.'/config/translate.php' => config_path('translate.php'),
+            __DIR__.'/../config/translate.php' => config_path('translate.php'),
         ]);
 
         $this->publishes([
-            __DIR__.'/database/migrations/' => database_path('migrations')
+            __DIR__.'/../database/migrations/' => database_path('migrations')
         ], 'migrations');
-
+        
         if (config('translate.use_routes')) {
             $this->setupRoutes($this->app->router);
         }
 
         $router->pushMiddlewareToGroup('web', \DylanLamers\Translate\Middleware\TranslateInitiator::class);
+
+        $events->listen('locale.changed', function () {
+            app('translate')->localeChanged();
+        });
     }
 
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/translate.php', 'translate');
+
         $this->commands([
             'DylanLamers\Translate\Console\Commands\Install'
         ]);
@@ -44,7 +51,7 @@ class TranslateServiceProvider extends ServiceProvider
         */
         
         $this->app->singleton('translate', function ($app) {
-            return new Translate($app['session']);
+            return new Translate($app['session'], $app);
         });
 
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();

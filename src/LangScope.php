@@ -26,19 +26,19 @@ class LangScope implements ScopeInterface
 
             $builder
                 ->select($table.'.*')
-                ->leftJoin($table.'_lang as lang', function ($join) use ($table, $tableSingular) {
+                ->leftJoin($table.'_lang as translate', function ($join) use ($table, $tableSingular) {
                     $fallbackLanguageId = Translate::getFallbackLanguageId();
                     $languageId = Translate::getLanguageId();
 
                     $join
-                        ->on($table.'.id', '=', 'lang.'.$tableSingular.'_id')
-                        ->where('lang.language_id', '=', Translate::getLanguageId());
+                        ->on($table.'.id', '=', 'translate.'.$tableSingular.'_id')
+                        ->where('translate.language_id', '=', Translate::getLanguageId());
 
                     if ($languageId != $fallbackLanguageId) {
-                        $join->orWhere('lang.language_id', '=', $fallbackLanguageId);
+                        $join->orWhere('translate.language_id', '=', $fallbackLanguageId);
                     }
                 })
-                ->addSelect(preg_filter('/^/', 'lang.', $model->translate));
+                ->addSelect(preg_filter('/^/', 'translate.', $model->translate)); //Prefix with translate alias
         }
     }
 }

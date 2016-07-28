@@ -4,7 +4,7 @@ namespace DylanLamers\Translate;
 
 use Illuminate\Support\Facades\Config;
 use DylanLamers\Translate\Models\Language;
-use App;
+use Illuminate\Foundation\Application as App;
 use Illuminate\Session\SessionManager as Session;
 
 class Translate
@@ -13,41 +13,86 @@ class Translate
     protected $languages = [];
     protected $session;
     protected $sessionIsSet = false;
+    protected $useNiceUrls;
 
     /**
      * Set the session object.
      * @param Request $request
+     * @param App $app
      * @return void
      */
-    public function __construct(Session $session)
+    public function __construct(Session $session, App $app)
     {
         $this->session = $session;
+        $this->app = $app;
+
+        $this->useNiceUrls = config('translate.use_nice_urls');
     }
 
     /**
      * Only if we really need to we are going to change locale and only if the session is not yet set we are going to do a database lookup for the id and set it to the session.
+     * @param string|bool $possibleCode;
      * @return void
      */
-    public function init()
+    public function init($possibleCode)
     {
         $sessionExists = $this->session->has('translate_language_code');
 
-        if ($this->session->has('translate_language_code')) {
+        /**
+         * possibleCode will always be set to false when useNiceUrls is false (by its caller)
+         */
+        if ($possibleCode) {
+            $possibleCode = in_array($possibleCode, config('translate.language_codes')) ? $possibleCode : false;
+        }
+
+        if ($sessionExists) {
             $this->sessionIsSet = true;
 
-            $currentLocale = App::getLocale();
-            $languageCode = $sessionExists ? $this->session->get('translate_language_code') : $currentLocale;
+            $defaultLocale = $this->app->getLocale();
+            $sessionLanguageCode = $this->session->get('translate_language_code');
 
-            if ($currentLocale != $languageCode) {
-                App::setLocale($languageCode);
+            if ($this->useNiceUrls && $possibleCode !== $sessionLanguageCode) {
+                /**
+                 * Language code from the URL is off with the session. Set the locale and destory the session.
+                 */
+                $this->destroySession();
+                $this->setLocale($possibleCode ? $possibleCode : $defaultLocale);
+            } else if (! $this->useNiceUrls && $defaultLocale !== $sessionLanguageCode) {
+                $this->setLocale($sessionLanguageCode);
             }
+        } else if ($possibleCode) {
+            /**
+             * Session has not yet been set, so just worry about locale for now. Session will set it self when it needs to.
+             */
+            $this->setLocale($possibleCode);
         }
+    }
+
+    /**
+     * Set locale withouth firing event.
+     * @param string $locale
+     * @return type
+     */
+    protected function setLocale(string $locale)
+    {
+        $this->app['config']->set('app.locale', $locale);
+        $this->app['translator']->setLocale($locale);
+    }
+
+    /**
+     * Destroys translation related sessions
+     * @return void
+     */
+    protected function destroySession()
+    {
+        $this->session->forget(['translate_language_code', 'translate_language_id', 'translate_fallback_language_id']);
+        $this->sessionIsSet = false;
     }
 
     protected function setSession()
     {
         if (! $this->sessionIsSet) {
-            $this->setLanguage(App::getLocale(), false);
+            $this->setLanguage($this->app->getLocale(), false);
         }
     }
 
@@ -62,6 +107,11 @@ class Translate
         }
 
         return $this->languages;
+    }
+
+    public function localeChanged()
+    {
+        $this->setLanguage($this->app->getLocale(), false);
     }
 
     /**
@@ -99,7 +149,7 @@ class Translate
      */
     public function getLanguage()
     {
-        $languageCode = App::getLocale();
+        $languageCode = $this->app->getLocale();
         return $this->getLanguageByCode($languageCode);
     }
 
@@ -139,11 +189,12 @@ class Translate
 
         if ($language) {
             if ($alsoLocale) {
-                App::setLocale($language->code);
+                $this->setLocale($language->code);
             }
 
             $this->session->set('translate_language_id', $language->id);
             $this->session->set('translate_language_code', $language->code);
+            $this->sessionIsSet = true;
         }
 
         if (config('app.fallback_locale') &&
