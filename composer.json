@@ -1,0 +1,13 @@
+{
+    "name": "dylan-lamers/translate",
+    "description": "Easy, fast and reliable way to do multi language (database) translations on models.",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Dylan Lamers",
+            "email": "laravel@dylanlamers.nl"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
