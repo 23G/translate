@@ -12,6 +12,7 @@ trait TranslateTrait
     protected $langCode = '';
     protected $langName = '';
     protected $newTranslate = false;
+    protected $forceLanguage = false;
 
     /**
      * Add the joining scope to the model.
@@ -55,6 +56,29 @@ trait TranslateTrait
     }
 
     /**
+     * Force a language code
+     * @param string $code
+     * @return $this
+     */
+    public function forceLanguage($code)
+    {
+        if ($language = Translate::getLanguageByCode($code)) {
+            $this->forceLanguage = $language->id;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get Language Id
+     * @return int
+     */
+    public function getLanguageId()
+    {
+        return $this->forceLanguage ? $this->forceLanguage : Translate::getLanguageId();
+    }
+
+    /**
      * Tells if the key belongs to the model or the translations table.
      * @param string $key
      * @return bool
@@ -77,13 +101,10 @@ trait TranslateTrait
         */
         if (!$this->newTranslate && $dirty = $this->getDirty(true)) {
             $table = $this->getTable().'_lang';
-            $builder = \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId(Translate::getLanguageId())->limit(1);
+            $builder = \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId($this->getLanguageId())->limit(1);
 
-            if ($this->language_id == Translate::getLanguageId() || $builder->count()) {
-                $affectedRows = $builder->update($dirty);
-                if ($affectedRows === 0) {
-                    $this->newTranslate = true;
-                }
+            if ($this->language_id == $this->getLanguageId() || $builder->count()) {
+                $builder->update($dirty);
             } else {
                 $this->newTranslate = true;
             }
@@ -101,13 +122,14 @@ trait TranslateTrait
             $table = $this->getTable().'_lang';
             $attributes = $this->getAttributes(true);
             $attributes[$this->getTableSingular().'_id'] = $this->attributes['id'];
-            $attributes['language_id'] = Translate::getLanguageId();
+            $attributes['language_id'] = $this->getLanguageId();
 
             \DB::table($table)->insert($attributes);
 
             $this->newTranslate = false;
         }
 
+        $this->forceLanguage = false; // Reset to false after save
         return $returnParent;
     }
 
@@ -171,7 +193,7 @@ trait TranslateTrait
      */
     protected function insertAndSetId(Builder $query, $attributes)
     {
-        $attributes = $this->getAttributes();
+        $attributes = $this->getAttributes(); //This is altered to use our getAttributes function. This way it won't insert translateables.
 
         $id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
 
