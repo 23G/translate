@@ -93,4 +93,5 @@ Why not! Maybe for a nice selector.
 
 #Console
 **Add language's**
+
     php artisan translate:install
