@@ -15,6 +15,7 @@ class Translate
     protected $session;
     protected $sessionIsSet = false;
     protected $useNiceUrls;
+    protected $forceLanguage = false;
 
     /**
      * Set the session object.
@@ -121,9 +122,20 @@ class Translate
         return $this->languages;
     }
 
+    /**
+     * This function is called when app->setLocale is fired
+     * @return void
+     */
     public function localeChanged()
     {
         $this->setLanguage($this->app->getLocale(), false);
+    }
+
+    public function forceLanguage($code)
+    {
+        if ($language = $this->getLanguageByCode($code)) {
+            $this->forceLanguage = $language;
+        }
     }
 
     /**
@@ -162,6 +174,10 @@ class Translate
      */
     public function getLanguage()
     {
+        if ($this->forceLanguage) {
+            return $this->forceLanguage;
+        }
+
         $languageCode = $this->app->getLocale();
         return $this->getLanguageByCode($languageCode);
     }
@@ -172,6 +188,10 @@ class Translate
      */
     public function getLanguageId()
     {
+        if ($this->forceLanguage) {
+            return $this->forceLanguage->id;
+        }
+
         $this->setSession(); // Do it at the point we need it.
         return (int) ($this->session->has('translate_language_id') ? $this->session->get('translate_language_id') : $this->getLanguage()->id);
     }
@@ -182,6 +202,10 @@ class Translate
      */
     public function getFallbackLanguageId()
     {
+        if ($this->forceLanguage) {
+            return false;
+        }
+
         $this->setSession(); // Do it at the point we need it.
         return (int) ($this->session->has('translate_fallback_language_id') ? $this->session->get('translate_fallback_language_id') : false);
     }
