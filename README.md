@@ -56,7 +56,7 @@ This will look familiar
     App::setLocale('en');
     $app->setLocale('en');
     app()->setLocale('en');
- If you just want to set the language for the models and not the interface (in a cms for example)
+ If you just want to set the language for just the models and not the interface (in a cms for example)
  
 
     Translate::forceLanguage('en'); // This wil keep app.locale intact.
