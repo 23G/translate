@@ -2,16 +2,16 @@
 Easy, fast and reliable way to do multi language (database) translations on models.
 
 Yet another? Why is this so special?
- - Very lightweigt.
+ - Very lightweight.
 
- - Speed. This package uses joins instead of models. Eloquent models are great but on translations it can become a bit resource unfriendly. This bottelnecks that problem.
+ - Speed. This package uses joins instead of models. Eloquent models are great but on translations it can become a bit resource unfriendly. This bottlenecks that problem.
 
  - Smart URL. Availability to have nice looking urls like /hello /nl/hello /es/hello. But not required!
 
  - Console. Nice console commands to make installing and adding languages a breeze.
 
- - Comments. Comments have been used throughtout the whole project.
- 
+ - Comments. Comments have been used throughout the whole project.
+
  - PSR <3
 
 #Setup
