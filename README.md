@@ -1,6 +1,14 @@
 #Dylan Lamers - Translate
 Easy, fast and reliable way to do multi language (database) translations on models.
 
+Yet another? Why is this so special?
+-Very lightweigt.
+-Speed. This package uses joins instead of models. Eloquent models are great but on translations it can become a bit resource unfriendly. This bottelnecks that problem. 
+-Smart URL. Availability to have nice looking urls like /hello /nl/hello /es/hello. But not required!
+-Console. Nice console commands to make installing and adding languages a breeze.
+-Comments. Comments have been used throughtout the whole project.
+-PSR <3
+
 #Setup
 
 **Run installer**
@@ -77,3 +85,7 @@ Why not! Maybe for a nice selector.
     Translate::getLanguages(); // Returns collection of languages.
     Translate::getLanguage(); // Return current language (Eloquent Model)
     Translate::getCurrentLanguageId(); // Returns current language id
+
+#Console
+**Add language's**
+    php artisan translate:install
