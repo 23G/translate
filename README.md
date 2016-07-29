@@ -76,10 +76,10 @@ This will look familiar
 #Smart URL
 This package can detect the language code on url basis. It will look for **{code}/** (example: h**p://foo.bar/en/hello)
 
-**First of all enable this in the config**
-
+**Enable it in the config**
 
     'use_nice_urls' => true
+
 That's it. Make sure your routes look like the above example.
 
 *When no language code is found in the url, the app.locale is used*
