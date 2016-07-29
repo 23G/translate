@@ -57,28 +57,6 @@ class Install extends Command
 
         $this->info('Package migrations have been run');
 
-        $whileQuestion = 'Do you want to add an language?';
-
-        $languages = [];
-        $defaultIsSet = false;
-
-        while ($this->confirm($whileQuestion)) {
-            $whileQuestion = 'Do you want to add another language?';
-
-            $sort = null;
-            $readable = $this->ask('What is the full name of the language (eg: English)');
-            $code = $this->ask('What is the code of the language (eg: en)');
-            
-            if (!$defaultIsSet && $this->confirm('Is this the default language?')) {
-                $sort = 999;
-                $defaultIsSet = true;
-            }
-
-            $languages[] = compact('code', 'readable', 'sort');
-        }
-
-        if ($languages) {
-            Language::insert($languages);
-        }
+        $this->call('translate:addLanguage');
     }
 }

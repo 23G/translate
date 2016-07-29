@@ -43,7 +43,8 @@ class TranslateServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/translate.php', 'translate');
 
         $this->commands([
-            'DylanLamers\Translate\Console\Commands\Install'
+            'DylanLamers\Translate\Console\Commands\Install',
+            'DylanLamers\Translate\Console\Commands\AddLanguage'
         ]);
 
         /*
