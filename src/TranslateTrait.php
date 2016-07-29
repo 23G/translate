@@ -47,6 +47,8 @@ trait TranslateTrait
     {
         if ($this->isKeyTranslatable($key) && !array_key_exists($key, $this->original)) {
             $this->newTranslate = true;
+        } else if ($this->key == 'language_id') {
+            return $this; //We can't change this.
         }
 
         return parent::setAttribute($key, $value);
@@ -75,7 +77,16 @@ trait TranslateTrait
         */
         if (!$this->newTranslate && $dirty = $this->getDirty(true)) {
             $table = $this->getTable().'_lang';
-            \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId(Translate::getLanguageId())->update($dirty);
+            $builder = \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId(Translate::getLanguageId())->limit(1);
+
+            if ($this->language_id == Translate::getLanguageId() || $builder->count()) {
+                $affectedRows = $builder->update($dirty);
+                if ($affectedRows === 0) {
+                    $this->newTranslate = true;
+                }
+            } else {
+                $this->newTranslate = true;
+            }
         }
 
         /*
@@ -134,10 +145,15 @@ trait TranslateTrait
         if (!$attributes) {
             $attributes = $this->attributes;
         }
+    
+        $translate = $this->translate + ['language_id'];
 
-        $translate = array_flip($this->translate);
+        $translate = array_flip($translate);
 
         if ($translations) {
+            if (config('translate.use_timestamps')) {
+                $translate = array_merge($translate, ['created_at', 'updated_at']);
+            }
             $attributes = array_intersect_key($attributes, $translate);
         } else {
             $attributes = array_diff_key($attributes, $translate);
