@@ -26,10 +26,6 @@ class TranslateServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../database/migrations/' => database_path('migrations')
         ], 'migrations');
-        
-        if (config('translate.use_routes')) {
-            $this->setupRoutes($this->app->router);
-        }
 
         $router->pushMiddlewareToGroup('web', \DylanLamers\Translate\Middleware\TranslateInitiator::class);
 
@@ -57,18 +53,5 @@ class TranslateServiceProvider extends ServiceProvider
 
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('Translate', \DylanLamers\Translate\Facades\Translate::class);
-    }
-
-    /**
-     * Define the routes for the application.
-     *
-     * @param  \Illuminate\Routing\Router  $router
-     * @return void
-     */
-    public function setupRoutes(Router $router)
-    {
-        $router->group(['namespace' => 'DylanLamers\Translate\Http\Controllers'], function ($router) {
-            require __DIR__.'/Http/routes.php';
-        });
     }
 }
