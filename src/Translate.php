@@ -7,6 +7,7 @@ use DylanLamers\Translate\Models\Language;
 use Illuminate\Foundation\Application as App;
 use Illuminate\Session\SessionManager as Session;
 use Illuminate\Http\Request;
+use DylanLamers\Translate\Exceptions\LanguageNotFoundException;
 
 class Translate
 {
@@ -78,7 +79,7 @@ class Translate
             $this->setLocale($languageCodeFromUrl);
         }
 
-        debug($this->getLanguageId());
+        $this->getLanguageId();
     }
 
     /**
@@ -145,8 +146,11 @@ class Translate
      */
     public function getLanguageByCode(string $languageCode)
     {
-        debug($languageCode);
-        return $this->languages()->where('code', $languageCode)->first();
+        if ($language = $this->languages()->where('code', $languageCode)->first()) {
+            return $language;
+        }
+
+        throw new LanguageNotFoundException('Make sure to add the language for the default locale in the database');
     }
 
     /**
@@ -156,7 +160,11 @@ class Translate
      */
     public function getLanguageById(int $id)
     {
-        return $this->languages()->where('id', $id)->first();
+        if ($language = $this->languages()->where('id', $id)->first()) {
+            return $language;
+        }
+
+        throw new LanguageNotFoundException('Make sure to add the language for the default locale in the database');
     }
 
     /**
@@ -212,14 +220,17 @@ class Translate
 
     /**
      * Set the Language,
-     * @param string $languageCode
+     * @param string|int $languageCode
      * @param bool $alsoLocale
      * @return void
      */
-    public function setLanguage(string $languageCode, $alsoLocale = true)
+    public function setLanguage($languageCode, $alsoLocale = true)
     {
-        debug($languageCode);
         if (is_int($languageCode)) {
+            if ($languageCode === $this->getLanguageId()) {
+                return; // No Change
+            }
+
             $language = $this->getLanguageById($languageCode);
         } else {
             $language = $this->getLanguageByCode($languageCode);
@@ -229,7 +240,6 @@ class Translate
             if ($alsoLocale) {
                 $this->setLocale($language->code);
             }
-
             $this->session->set('translate_language_id', $language->id);
             $this->session->set('translate_language_code', $language->code);
             $this->sessionIsSet = true;

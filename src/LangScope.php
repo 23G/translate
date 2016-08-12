@@ -20,7 +20,7 @@ class LangScope implements ScopeInterface
      */
     public function apply(Builder $builder, Model $model)
     {
-        if ($model->translate) {
+        if ($translateAttributes = $model->getTranslateableAttributes()) {
             $table = $model->getTable();
             $tableSingular = $model->getTableSingular();
             $fallbackLanguageId = Translate::getFallbackLanguageId();
@@ -31,7 +31,7 @@ class LangScope implements ScopeInterface
              */
             $sql = false;
             if ($fallbackLanguageId) {
-                $sql = '(select `texts_lang`.`id` from `texts_lang` where `text_id` = `texts`.`id` and (`language_id` = '.$languageId.' or `language_id` = '.$fallbackLanguageId.') order by (`language_id` = '.$languageId.') desc limit 1)';
+                $sql = '(select `'.$table.'_lang`.`id` from `'.$table.'_lang` where `'.$tableSingular.'_id` = `'.$table.'`.`id` and (`language_id` = '.$languageId.' or `language_id` = '.$fallbackLanguageId.') order by (`language_id` = '.$languageId.') desc limit 1)';
             }
 
             $builder
@@ -47,7 +47,7 @@ class LangScope implements ScopeInterface
                         ->where('translate.language_id', '=', $languageId);
                     }
                 })
-                ->addSelect(preg_filter('/^/', 'translate.', $model->translate)); //Prefix with translate alias
+                ->addSelect(preg_filter('/^/', 'translate.', $translateAttributes)); //Prefix with translate alias
         }
     }
 }

@@ -32,7 +32,7 @@ trait TranslateTrait
     public function getAttribute($key)
     {
         if (in_array($key, $this->translate)) {
-            return 'trans: '.parent::getAttribute($key);
+            return parent::getAttribute($key);
         }
         
         return parent::getAttribute($key);
@@ -48,7 +48,7 @@ trait TranslateTrait
     {
         if ($this->isKeyTranslatable($key) && !array_key_exists($key, $this->original)) {
             $this->newTranslate = true;
-        } else if ($this->key == 'language_id') {
+        } else if ($this->key === 'language_id') {
             return $this; //We can't change this.
         }
 
@@ -101,7 +101,7 @@ trait TranslateTrait
         */
         if (!$this->newTranslate && $dirty = $this->getDirty(true)) {
             $table = $this->getTable().'_lang';
-            $builder = \DB::table($table)->whereTextId($this->attributes['id'])->whereLanguageId($this->getLanguageId())->limit(1);
+            $builder = \DB::table($table)->where($this->getTableSingular().'_id', '=', $this->attributes['id'])->whereLanguageId($this->getLanguageId())->limit(1);
 
             if ($this->language_id == $this->getLanguageId() || $builder->count()) {
                 $builder->update($dirty);
@@ -207,5 +207,23 @@ trait TranslateTrait
     public function getTableSingular()
     {
         return isset($this->table) ? $this->table : str_replace('\\', '', snake_case((class_basename($this))));
+    }
+
+    /**
+     * Check if we have translateable attributes
+     * @return bool
+     */
+    public function hasTranslate()
+    {
+        return (bool) $this->translate;
+    }
+
+    /**
+     * Get Translateable Attributes
+     * @return array
+     */
+    public function getTranslateableAttributes()
+    {
+        return $this->translate;
     }
 }

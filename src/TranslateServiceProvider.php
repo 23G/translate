@@ -32,6 +32,10 @@ class TranslateServiceProvider extends ServiceProvider
         $events->listen('locale.changed', function () {
             app('translate')->localeChanged();
         });
+
+        if (! $this->app->routesAreCached()) {
+            require __DIR__.'/../routes.php';
+        }
     }
 
     public function register()
