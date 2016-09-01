@@ -30,6 +30,7 @@ class LangScope implements Scope
              * Laravel Join and Subquery wasn't playing nicely, so had to make the raw query. The languageId and fallbackLanguageId are always int so no need escaping.
              */
             $sql = false;
+            
             if ($fallbackLanguageId && $fallbackLanguageId !== $languageId) {
                 $sql = '(select `'.$table.'_lang`.`id` from `'.$table.'_lang` where `'.$tableSingular.'_id` = `'.$table.'`.`id` and (`language_id` = '.$languageId.' or `language_id` = '.$fallbackLanguageId.') order by (`language_id` = '.$languageId.') desc limit 1)';
             }

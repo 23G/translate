@@ -54,7 +54,6 @@ class Translate
 
         if ($sessionExists) {
             $this->sessionIsSet = true;
-
             $sessionLanguageCode = $this->session->get('translate_language_code');
 
             if ($this->languageCodeFromUrl &&
