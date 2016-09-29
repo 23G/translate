@@ -1,9 +1,12 @@
-<?php namespace DylanLamers\Translate\Models;
+<?php 
+
+namespace DylanLamers\Translate\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Language extends Model
 {
+    public $timestamps = false;
     /**
      * Scope a query to sort.
      *
