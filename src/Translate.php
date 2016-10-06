@@ -286,6 +286,10 @@ class Translate
 
     public function url($locale = null, $actualPath = null)
     {
+        if ('/'.$locale === $actualPath) {
+            return url($actualPath);
+        }
+
         $path = '';
         $actualPath = $actualPath ? $actualPath : $this->request->path();
 

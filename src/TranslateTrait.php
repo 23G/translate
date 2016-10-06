@@ -4,6 +4,7 @@ namespace DylanLamers\Translate;
 
 use Illuminate\Database\Eloquent\Builder;
 use DylanLamers\Translate\Facades\Translate;
+use DB;
 
 trait TranslateTrait
 {
@@ -225,5 +226,18 @@ trait TranslateTrait
     public function getTranslateableAttributes()
     {
         return $this->translate;
+    }
+
+    public function getAlternates($code)
+    {
+        $table = $this->getTable().'_lang';
+        $tableSingular = $this->getTableSingular();
+        $language = Translate::getLanguageByCode($code);
+
+        return DB::table($table)
+                    ->where($table.'.'.$tableSingular.'_id', '=', $this->id)
+                    ->where('language_id', '!=', $language->id)
+                    ->join('languages', $table.'.language_id', '=', 'languages.id')
+                    ->pluck('slug', 'code')->toArray();
     }
 }
